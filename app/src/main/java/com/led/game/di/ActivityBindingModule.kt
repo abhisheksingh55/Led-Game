@@ -1,6 +1,6 @@
 package com.led.game.di
 
-import com.led.game.MainActivity
+import com.led.game.main.MainActivity
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 

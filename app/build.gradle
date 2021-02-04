@@ -42,7 +42,7 @@ dependencies {
 
 //    implementation project(':data')
 //    implementation project(':device')
-//    implementation project(':domain')
+    implementation project(':domain')
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 

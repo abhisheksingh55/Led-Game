@@ -1,7 +1,9 @@
 package com.led.game.base
 
 import android.os.Bundle
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.led.game.extensions.toast
 import dagger.android.support.DaggerAppCompatActivity
 import javax.inject.Inject
 
@@ -49,7 +51,9 @@ abstract class BaseActivity<VM : BaseViewModel>: DaggerAppCompatActivity(){
      * Use this method for observing livedata from viewmodel
      */
     open fun observeViewModelEvents(){
-
+        viewModel.observeMsg().observe(this, Observer {
+            toast(it)
+        })
     }
 
     /**
