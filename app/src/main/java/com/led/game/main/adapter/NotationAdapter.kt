@@ -1,5 +1,6 @@
 package com.led.game.main.adapter
 
+import android.content.Context
 import android.graphics.PorterDuff
 import android.view.View
 import android.view.ViewGroup
@@ -11,37 +12,24 @@ import com.led.game.extensions.getColorRes
 import com.led.game.extensions.inflate
 import kotlinx.android.synthetic.main.item_color_notation.view.*
 
-class NotationAdapter: BaseAdapter<LedLight, BaseViewHolder<LedLight>>() {
+class NotationAdapter(context: Context) : BaseAdapter<LedLight, BaseViewHolder<LedLight>>() {
+
+    private val colorNotations = context.resources.getStringArray(R.array.color_notation)
+    private val ledColors = context.resources.getIntArray(R.array.led_colors)
+
     override fun getViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<LedLight> {
         return NotationVH(parent.inflate(R.layout.item_color_notation))
     }
 
-    internal class NotationVH(view: View): BaseViewHolder<LedLight>(view){
+    inner class NotationVH(view: View) : BaseViewHolder<LedLight>(view) {
 
         override fun setData(data: LedLight, payload: MutableList<Any>?) {
             super.setData(data, payload)
-            var color: Int = -1
-            var msg: String = ""
-            when(data){
-                LedLight.GREEN -> {
-                    msg = "Button pressed was matched\nfor this position"
-                    color = R.color.green
-                }
-                LedLight.RED -> {
-                    msg = "Button pressed was wrong\nfor this sequence "
-                    color = R.color.red
-                }
-                LedLight.ORANGE -> {
-                    msg = "Button pressed was wrong\nfor this position"
-                    color = R.color.orange
-                }
-                LedLight.OFF -> {
-                    msg = "Button not pressed\nfor this position"
-                    color = R.color.led_off
-                }
-            }
-            itemView.msgTv.text = msg
-            itemView.colorIv.setColorFilter(itemView.context.getColorRes(color), PorterDuff.Mode.SRC_IN)
+            itemView.msgTv.text = colorNotations[data.ordinal]
+            itemView.colorIv.setColorFilter(
+                ledColors[data.ordinal],
+                PorterDuff.Mode.SRC_IN
+            )
         }
     }
 }

@@ -52,7 +52,6 @@ dependencies {
         implementation dependencies.androidxSupportV13
         implementation dependencies.viewModelAndLifecycle
         implementation dependencies.androidxDesign
-        implementation dependencies.cardView
         implementation dependencies.constraintLayout
         implementation dependencies.recyclerView
         implementation dependencies.dagger

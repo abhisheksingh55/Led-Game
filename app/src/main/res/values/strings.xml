@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Led Game</string>
+    <string-array name="color_notation">
+        <item>Button not pressed for this position</item>
+        <item>Button pressed was wrong for this sequence</item>
+        <item>Button pressed was wrong for this position</item>
+        <item>Button pressed was matched for this position</item>
+    </string-array>
 </resources>

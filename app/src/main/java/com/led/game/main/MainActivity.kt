@@ -13,9 +13,13 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : BaseActivity<MainViewModel>(), BaseAdapterItemClick<ButtonOption> {
 
-    private var ledLightAdapter: LedLightAdapter?=null
-    private var buttonOptionAdapter: ButtonOptionsAdapter?=null
-    private var notationAdapter: NotationAdapter?=null
+    private var ledLightAdapter: LedLightAdapter? = null
+    private var buttonOptionAdapter: ButtonOptionsAdapter? = null
+    private var notationAdapter: NotationAdapter? = null
+
+    override fun getLayoutResId(): Int {
+        return R.layout.activity_main
+    }
 
     override fun getViewModelInstance(): MainViewModel {
         return viewModelFactory.getViewModel(this)
@@ -23,7 +27,7 @@ class MainActivity : BaseActivity<MainViewModel>(), BaseAdapterItemClick<ButtonO
 
     override fun setUpView() {
         super.setUpView()
-        ledLightAdapter = LedLightAdapter()
+        ledLightAdapter = LedLightAdapter(this)
         ledRv.setHasFixedSize(true)
         ledRv.adapter = ledLightAdapter
 
@@ -31,7 +35,7 @@ class MainActivity : BaseActivity<MainViewModel>(), BaseAdapterItemClick<ButtonO
         buttonRv.setHasFixedSize(true)
         buttonRv.adapter = buttonOptionAdapter
 
-        notationAdapter = NotationAdapter()
+        notationAdapter = NotationAdapter(this)
         notationRv.setHasFixedSize(true)
         notationRv.adapter = notationAdapter
     }
@@ -39,10 +43,6 @@ class MainActivity : BaseActivity<MainViewModel>(), BaseAdapterItemClick<ButtonO
     override fun onItemClick(viewType: Int, data: ButtonOption) {
         super.onItemClick(viewType, data)
         viewModel.buttonPressed(data)
-    }
-
-    override fun getLayoutResId(): Int {
-        return R.layout.activity_main
     }
 
 

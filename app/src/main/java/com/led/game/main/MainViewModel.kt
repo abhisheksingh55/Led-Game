@@ -11,7 +11,8 @@ import io.reactivex.subjects.PublishSubject
 import timber.log.Timber
 import javax.inject.Inject
 
-class MainViewModel @Inject constructor(private val schedulersProvider: SchedulersProvider): BaseViewModel() {
+class MainViewModel @Inject constructor(private val schedulersProvider: SchedulersProvider) :
+    BaseViewModel() {
 
     private var lastInput: StringBuffer = StringBuffer()
 
@@ -21,78 +22,78 @@ class MainViewModel @Inject constructor(private val schedulersProvider: Schedule
     private var ledLightCount = 3
     private val colorLedLd = MutableLiveData<List<LedModel>>()
     private val buttonOptionLd = MutableLiveData<List<ButtonOption>>()
-    private val colorNotationLd = MutableLiveData<List<LedLight>>().apply { postValue(LedLight.values().toList()) }
+    private val colorNotationLd =
+        MutableLiveData<List<LedLight>>().apply { postValue(LedLight.values().toList()) }
     private val generatedStringLd = MutableLiveData<String>()
-
     private val inputSeqSubject = PublishSubject.create<ButtonOption>()
+
     init {
         setUpInitialView()
         observeInputPress()
     }
 
-    private fun setUpInitialView(){
+    private fun setUpInitialView() {
         //initialize led list
-        val list = getLedList()
-        colorLedLd.postValue(list)
+        initializeLed()
         // initialize button list
         initializeButton()
-        buttonOptionLd.postValue(listOfButton)
         // generate system sequence
         generateSeq()
         // fixed last observe button press
         //lastInput.setLength(list.size)
     }
 
-    fun observeLedLights(): LiveData<List<LedModel>>{
+    fun observeLedLights(): LiveData<List<LedModel>> {
         return colorLedLd
     }
 
-    fun observeButtonOptions(): LiveData<List<ButtonOption>>{
+    fun observeButtonOptions(): LiveData<List<ButtonOption>> {
         return buttonOptionLd
     }
 
-    fun observeColorNotation(): LiveData<List<LedLight>>{
+    fun observeColorNotation(): LiveData<List<LedLight>> {
         return colorNotationLd
     }
 
-    fun generatedString(): LiveData<String>{
+    fun generatedString(): LiveData<String> {
         return generatedStringLd
     }
 
-    fun buttonPressed(newInput: ButtonOption){
+    fun buttonPressed(newInput: ButtonOption) {
         inputSeqSubject.onNext(newInput)
     }
 
-    private fun observeInputPress(){
-        inputSeqSubject.
-            map {
-                if (lastInput.length == ledLightCount){
-                    lastInput.deleteCharAt(0)
-                }
-                lastInput.append(it.name)
-                lastInput.toString()
+    private fun observeInputPress() {
+        inputSeqSubject.map {
+            if (lastInput.length == ledLightCount) {
+                lastInput.deleteCharAt(0)
             }
+            lastInput.append(it.name)
+            lastInput.toString()
+        }
             .subscribeOn(schedulersProvider.computation())
-            .subscribe({inputSeq ->
-                val colorAfterCompare = compareString(sysGenerateSeq, inputSeq)
-                colorLedLd.postValue(colorAfterCompare)
-                // is guessed right sequence
-                if (checkIsGuessSuccess(colorAfterCompare)) {
-                    postToastMsg("Congratulation, Your guess is right!!")
-                    1500L.delayRun {
-                        setUpInitialView()
-                    }.addTo(compositeDisposable)
-                }
-            },{
-
-            }).addTo(compositeDisposable)
+            .subscribe(this::handleInputSeq) {
+                Timber.d(it)
+            }.addTo(compositeDisposable)
     }
 
-    private fun compareString(sysSeq: String, inputSeq: String): List<LedModel>{
-        Timber.v("sys $sysSeq,  guessed $inputSeq")
+    private fun handleInputSeq(inputSeq: String) {
+        val colorAfterCompare = compareString(sysGenerateSeq, inputSeq)
+        colorLedLd.postValue(colorAfterCompare)
+        // is guessed right sequence
+        if (checkIsGuessSuccess(colorAfterCompare)) {
+            postToastMsg("Congratulation, Your guess is right!!")
+            1500L.delayRun {
+                setUpInitialView()
+            }.addTo(compositeDisposable)
+        }
+    }
+
+    private fun compareString(sysSeq: String, inputSeq: String): List<LedModel> {
+        Timber.d("sys $sysSeq,  guessed $inputSeq")
         val lengthDiff = sysSeq.length.minus(inputSeq.length)
 
-       val newLedColor = getLedList()
+        val newLedColor = getLedList()
         inputSeq.forEachIndexed { index, char ->
             val color = when {
                 sysSeq[index] == char -> {
@@ -105,35 +106,41 @@ class MainViewModel @Inject constructor(private val schedulersProvider: Schedule
                     LedLight.RED
                 }
             }
-            Timber.v("guess= $inputSeq, char=$char, color = ${color.name}")
-            newLedColor[index+lengthDiff].light = color
+            Timber.d("guess= $inputSeq, char=$char, color = ${color.name}")
+            newLedColor[index + lengthDiff].light = color
         }
         return newLedColor
     }
 
     // check all light are green
-    private fun checkIsGuessSuccess(colors: List<LedModel>): Boolean{
+    private fun checkIsGuessSuccess(colors: List<LedModel>): Boolean {
         return colors.all { it.light == LedLight.GREEN }
     }
 
-    private fun getLedList(): List<LedModel>{
+    private fun getLedList(): List<LedModel> {
         val list = ArrayList<LedModel>()
-        for (i in 0 until ledLightCount){
-            list.add(LedModel(light = LedLight.OFF, name = "LED${i+1}"))
+        for (i in 0 until ledLightCount) {
+            list.add(LedModel(light = LedLight.OFF, name = "LED${i + 1}"))
         }
         return list
     }
 
-    private fun initializeButton(){
-        if (listOfButton.isNullOrEmpty()){
+    private fun initializeButton() {
+        if (listOfButton.isNullOrEmpty()) {
             ButtonOption.values().forEach {
                 listOfButton.add(it)
             }
+            buttonOptionLd.postValue(listOfButton)
         }
     }
 
-    private fun generateSeq(){
-        sysGenerateSeq = listOfButton.fold(""){ R, _ -> R.plus(listOfButton.random().name) }
+    private fun initializeLed() {
+        val list = getLedList()
+        colorLedLd.postValue(list)
+    }
+
+    private fun generateSeq() {
+        sysGenerateSeq = listOfButton.fold("") { R, _ -> R.plus(listOfButton.random().name) }
         if (lastInput.isNotEmpty()) {
             lastInput.delete(0, lastInput.length)
         }

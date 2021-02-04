@@ -1,5 +1,6 @@
 package com.led.game.main.adapter
 
+import android.content.Context
 import android.graphics.PorterDuff
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +13,9 @@ import com.led.game.extensions.getColorRes
 import com.led.game.extensions.inflate
 import kotlinx.android.synthetic.main.item_led_light.view.*
 
-class LedLightAdapter: BaseDiffAdapter<LedModel, BaseViewHolder<LedModel>>(null) {
+class LedLightAdapter(context: Context) :
+    BaseDiffAdapter<LedModel, BaseViewHolder<LedModel>>(null) {
+    private val ledColors = context.resources.getIntArray(R.array.led_colors)
     override fun isItemSame(oldItem: LedModel, newItem: LedModel): Boolean {
         return oldItem.name == newItem.name
     }
@@ -25,17 +28,14 @@ class LedLightAdapter: BaseDiffAdapter<LedModel, BaseViewHolder<LedModel>>(null)
         return LightVH(parent.inflate(R.layout.item_led_light))
     }
 
-    inner class LightVH(view: View): BaseViewHolder<LedModel>(view){
+    inner class LightVH(view: View) : BaseViewHolder<LedModel>(view) {
 
         override fun setData(data: LedModel, payload: MutableList<Any>?) {
             super.setData(data, payload)
-            val color = when(data.light){
-                LedLight.GREEN -> R.color.green
-                LedLight.RED ->  R.color.red
-                LedLight.ORANGE -> R.color.orange
-                LedLight.OFF -> R.color.led_off
-            }
-            itemView.colorIv.setColorFilter(itemView.context.getColorRes(color), PorterDuff.Mode.SRC_IN)
+            itemView.colorIv.setColorFilter(
+                ledColors[data.light.ordinal],
+                PorterDuff.Mode.SRC_IN
+            )
             itemView.nameTv.text = data.name
         }
     }

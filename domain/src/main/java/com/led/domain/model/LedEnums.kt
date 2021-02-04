@@ -1,10 +1,10 @@
 package com.led.domain.model
 
 enum class LedLight{
+    OFF,
     RED,
-    GREEN,
     ORANGE,
-    OFF;
+    GREEN;
 }
 
 enum class ButtonOption{
